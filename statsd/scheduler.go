@@ -15,5 +15,97 @@ limitations under the License. */
 
 package statsd
 
+import (
+	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/mesos/mesos-go/mesosproto"
+	mesos "github.com/mesos/mesos-go/mesosproto"
+	"github.com/mesos/mesos-go/scheduler"
+	"os"
+	"os/signal"
+)
+
 type Scheduler struct {
+}
+
+func (s *Scheduler) Start() error {
+	Logger.Infof("Starting scheduler with configuration: \n%s", Config)
+
+	ctrlc := make(chan os.Signal, 1)
+	signal.Notify(ctrlc, os.Interrupt)
+
+	frameworkInfo := &mesosproto.FrameworkInfo{
+		User:       proto.String(Config.User),
+		Name:       proto.String(Config.FrameworkName),
+		Role:       proto.String(Config.FrameworkRole),
+		Checkpoint: proto.Bool(true),
+	}
+
+	driverConfig := scheduler.DriverConfig{
+		Scheduler: s,
+		Framework: frameworkInfo,
+		Master:    Config.Master,
+	}
+
+	driver, err := scheduler.NewMesosSchedulerDriver(driverConfig)
+	go func() {
+		<-ctrlc
+		s.Shutdown(driver)
+	}()
+
+	if err != nil {
+		return fmt.Errorf("Unable to create SchedulerDriver: %s", err)
+	}
+
+	if stat, err := driver.Run(); err != nil {
+		Logger.Infof("Framework stopped with status %s and error: %s\n", stat.String(), err)
+		return err
+	}
+
+	return nil
+}
+
+func (s *Scheduler) Registered(scheduler.SchedulerDriver, *mesos.FrameworkID, *mesos.MasterInfo) {
+
+}
+
+func (s *Scheduler) Reregistered(scheduler.SchedulerDriver, *mesos.MasterInfo) {
+
+}
+
+func (s *Scheduler) Disconnected(scheduler.SchedulerDriver) {
+
+}
+
+func (s *Scheduler) ResourceOffers(scheduler.SchedulerDriver, []*mesos.Offer) {
+
+}
+
+func (s *Scheduler) OfferRescinded(scheduler.SchedulerDriver, *mesos.OfferID) {
+
+}
+
+func (s *Scheduler) StatusUpdate(scheduler.SchedulerDriver, *mesos.TaskStatus) {
+
+}
+
+func (s *Scheduler) FrameworkMessage(scheduler.SchedulerDriver, *mesos.ExecutorID, *mesos.SlaveID, string) {
+
+}
+
+func (s *Scheduler) SlaveLost(scheduler.SchedulerDriver, *mesos.SlaveID) {
+
+}
+
+func (s *Scheduler) ExecutorLost(scheduler.SchedulerDriver, *mesos.ExecutorID, *mesos.SlaveID, int) {
+
+}
+
+func (s *Scheduler) Error(scheduler.SchedulerDriver, string) {
+
+}
+
+func (s *Scheduler) Shutdown(driver *scheduler.MesosSchedulerDriver) {
+	Logger.Info("Shutdown triggered, stopping driver")
+	driver.Stop(false)
 }

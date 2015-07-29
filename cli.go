@@ -57,15 +57,15 @@ func handleHelp(commandArgs []string) {
 }
 
 func handleScheduler(commandArgs []string) error {
-	var master string
 	var api string
 	var user string
 	var logLevel string
 
-	flag.StringVar(&master, "master", "", "Mesos Master addresses.")
+	flag.StringVar(&statsd.Config.Master, "master", "", "Mesos Master addresses.")
 	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
 	flag.StringVar(&user, "user", "", "Mesos user. Defaults to current system user")
 	flag.StringVar(&logLevel, "log.level", "", "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
+	//TODO framework name, role
 
 	flag.Parse()
 
@@ -77,13 +77,11 @@ func handleScheduler(commandArgs []string) error {
 		return err
 	}
 
-	if master == "" {
+	if statsd.Config.Master == "" {
 		return errors.New("--master flag is required.")
 	}
 
-	// new(statsd.Scheduler).start() //TODO
-
-	return nil
+	return new(statsd.Scheduler).Start()
 }
 
 func resolveApi(api string) error {

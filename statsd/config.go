@@ -15,12 +15,31 @@ limitations under the License. */
 
 package statsd
 
-import log "github.com/cihub/seelog"
+import (
+	"fmt"
+	log "github.com/cihub/seelog"
+)
 
 var Logger log.LoggerInterface
 
-var Config *config = new(config)
+var Config *config = &config{
+	FrameworkName: "statsd-kafka",
+	FrameworkRole: "*",
+}
 
 type config struct {
-	Api string
+	Api           string
+	Master        string
+	FrameworkName string
+	FrameworkRole string
+	User          string
+}
+
+func (c *config) String() string {
+	return fmt.Sprintf(`api: %s
+master: %s
+framework name: %s
+framework role: %s
+user: %s
+`, c.Api, c.Master, c.FrameworkName, c.FrameworkRole, c.User)
 }
