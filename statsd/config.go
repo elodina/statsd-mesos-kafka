@@ -18,6 +18,7 @@ package statsd
 import (
 	"fmt"
 	log "github.com/cihub/seelog"
+	"regexp"
 )
 
 var Logger log.LoggerInterface
@@ -25,7 +26,11 @@ var Logger log.LoggerInterface
 var Config *config = &config{
 	FrameworkName: "statsd-kafka",
 	FrameworkRole: "*",
+	Cpus:          0.1,
+	Mem:           64,
 }
+
+var executorMask = regexp.MustCompile("executor.*")
 
 type config struct {
 	Api           string
@@ -33,6 +38,10 @@ type config struct {
 	FrameworkName string
 	FrameworkRole string
 	User          string
+	Cpus          float64
+	Mem           float64
+	Executor      string
+	LogLevel      string
 }
 
 func (c *config) String() string {
@@ -41,5 +50,28 @@ master: %s
 framework name: %s
 framework role: %s
 user: %s
-`, c.Api, c.Master, c.FrameworkName, c.FrameworkRole, c.User)
+cpus: %f
+mem: %f
+executor: %s
+log level: %s
+`, c.Api, c.Master, c.FrameworkName, c.FrameworkRole, c.User, c.Cpus, c.Mem,
+		c.Executor, c.LogLevel)
+}
+
+func InitLogging(level string) error {
+	config := fmt.Sprintf(`<seelog minlevel="%s">
+    <outputs formatid="main">
+        <console />
+    </outputs>
+
+    <formats>
+        <format id="main" format="%%Date/%%Time [%%LEVEL] %%Msg%%n"/>
+    </formats>
+</seelog>`, level)
+
+	logger, err := log.LoggerFromConfigAsBytes([]byte(config))
+	Config.LogLevel = level
+	Logger = logger
+
+	return err
 }

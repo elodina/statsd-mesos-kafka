@@ -1,3 +1,5 @@
+// +build cli
+
 /* Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
 this work for additional information regarding copyright ownership.
@@ -19,7 +21,6 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	log "github.com/cihub/seelog"
 	"github.com/stealthly/statsd-mesos-kafka/statsd"
 	"os"
 )
@@ -73,7 +74,7 @@ func handleScheduler(commandArgs []string) error {
 		return err
 	}
 
-	if err := setLogLevel(logLevel); err != nil {
+	if err := statsd.InitLogging(logLevel); err != nil {
 		return err
 	}
 
@@ -96,21 +97,4 @@ func resolveApi(api string) error {
 	}
 
 	return errors.New("Undefined API url. Please provide either a CLI --api option or SM_API env.")
-}
-
-func setLogLevel(level string) error {
-	config := fmt.Sprintf(`<seelog minlevel="%s">
-    <outputs formatid="main">
-        <console />
-    </outputs>
-
-    <formats>
-        <format id="main" format="%%Date/%%Time [%%LEVEL] %%Msg%%n"/>
-    </formats>
-</seelog>`, level)
-
-	logger, err := log.LoggerFromConfigAsBytes([]byte(config))
-	statsd.Logger = logger
-
-	return err
 }
