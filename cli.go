@@ -1,5 +1,3 @@
-// +build cli
-
 /* Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
 this work for additional information regarding copyright ownership.
@@ -65,8 +63,9 @@ func handleScheduler(commandArgs []string) error {
 	flag.StringVar(&statsd.Config.Master, "master", "", "Mesos Master addresses.")
 	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
 	flag.StringVar(&user, "user", "", "Mesos user. Defaults to current system user")
-	flag.StringVar(&logLevel, "log.level", "", "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
-	//TODO framework name, role
+	flag.StringVar(&logLevel, "log.level", statsd.Config.LogLevel, "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
+	flag.StringVar(&statsd.Config.FrameworkName, "framework.name", statsd.Config.FrameworkName, "Framework name.")
+	flag.StringVar(&statsd.Config.FrameworkRole, "framework.role", statsd.Config.FrameworkRole, "Framework name.")
 
 	flag.Parse()
 

@@ -17,18 +17,19 @@ package statsd
 
 import (
 	"github.com/mesos/mesos-go/executor"
-	"github.com/mesos/mesos-go/mesosproto"
-	"time"
+	mesos "github.com/mesos/mesos-go/mesosproto"
+	"os"
 )
 
 type Executor struct {
+	server *StatsDServer
 }
 
-func (e *Executor) Registered(driver executor.ExecutorDriver, executor *mesosproto.ExecutorInfo, framework *mesosproto.FrameworkInfo, slave *mesosproto.SlaveInfo) {
+func (e *Executor) Registered(driver executor.ExecutorDriver, executor *mesos.ExecutorInfo, framework *mesos.FrameworkInfo, slave *mesos.SlaveInfo) {
 	Logger.Infof("[Registered] framework: %s slave: %s", framework.GetId().GetValue(), slave.GetId().GetValue())
 }
 
-func (e *Executor) Reregistered(driver executor.ExecutorDriver, slave *mesosproto.SlaveInfo) {
+func (e *Executor) Reregistered(driver executor.ExecutorDriver, slave *mesos.SlaveInfo) {
 	Logger.Infof("[Reregistered] slave: %s", slave.GetId().GetValue())
 }
 
@@ -36,14 +37,40 @@ func (e *Executor) Disconnected(executor.ExecutorDriver) {
 	Logger.Info("[Disconnected]")
 }
 
-func (e *Executor) LaunchTask(driver executor.ExecutorDriver, task *mesosproto.TaskInfo) {
+func (e *Executor) LaunchTask(driver executor.ExecutorDriver, task *mesos.TaskInfo) {
 	Logger.Infof("[LaunchTask] %s", task)
 
-	time.Sleep(1 * time.Minute) //stub
+	runStatus := &mesos.TaskStatus{
+		TaskId: task.GetTaskId(),
+		State:  mesos.TaskState_TASK_RUNNING.Enum(),
+	}
+
+	if _, err := driver.SendStatusUpdate(runStatus); err != nil {
+		Logger.Errorf("Failed to send status update: %s", runStatus)
+		os.Exit(1) //TODO not sure if we should exit in this case, but probably yes
+	}
+
+	go func() {
+		e.server = NewStatsDServer("0.0.0.0:8125") //TODO I know we want to listen to 8125 only in our case but still this should be configurable
+		e.server.Start()
+
+		// finish task
+		Logger.Infof("Finishing task %s", task.GetName())
+		finStatus := &mesos.TaskStatus{
+			TaskId: task.GetTaskId(),
+			State:  mesos.TaskState_TASK_FINISHED.Enum(),
+		}
+		if _, err := driver.SendStatusUpdate(finStatus); err != nil {
+			Logger.Errorf("Failed to send status update: %s", finStatus)
+			os.Exit(1)
+		}
+		Logger.Infof("Task %s has finished", task.GetName())
+	}()
 }
 
-func (e *Executor) KillTask(driver executor.ExecutorDriver, id *mesosproto.TaskID) {
+func (e *Executor) KillTask(driver executor.ExecutorDriver, id *mesos.TaskID) {
 	Logger.Infof("[KillTask] %s", id.GetValue())
+	e.server.Stop()
 }
 
 func (e *Executor) FrameworkMessage(driver executor.ExecutorDriver, message string) {
@@ -52,6 +79,7 @@ func (e *Executor) FrameworkMessage(driver executor.ExecutorDriver, message stri
 
 func (e *Executor) Shutdown(driver executor.ExecutorDriver) {
 	Logger.Infof("[Shutdown]")
+	e.server.Stop()
 }
 
 func (e *Executor) Error(driver executor.ExecutorDriver, message string) {

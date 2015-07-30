@@ -34,7 +34,7 @@ func NewHttpServer(address string) *HttpServer {
 }
 
 func (hs *HttpServer) Start() {
-	http.HandleFunc("/resource", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/resource/", func(w http.ResponseWriter, r *http.Request) {
 		resourceTokens := strings.Split(r.URL.Path, "/")
 		resource := resourceTokens[len(resourceTokens)-1]
 		http.ServeFile(w, r, resource)

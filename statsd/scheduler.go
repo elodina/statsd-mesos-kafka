@@ -92,7 +92,7 @@ func (s *Scheduler) Disconnected(scheduler.SchedulerDriver) {
 }
 
 func (s *Scheduler) ResourceOffers(driver scheduler.SchedulerDriver, offers []*mesos.Offer) {
-	Logger.Debugf("[ResourceOffers] %s", offers)
+	Logger.Debugf("[ResourceOffers] %s", offersString(offers))
 
 	for _, offer := range offers {
 		declineReason := s.acceptOffer(driver, offer)
@@ -108,7 +108,7 @@ func (s *Scheduler) OfferRescinded(driver scheduler.SchedulerDriver, id *mesos.O
 }
 
 func (s *Scheduler) StatusUpdate(driver scheduler.SchedulerDriver, status *mesos.TaskStatus) {
-	Logger.Infof("[StatusUpdate] %s", status)
+	Logger.Infof("[StatusUpdate] %s", statusString(status))
 }
 
 func (s *Scheduler) FrameworkMessage(driver scheduler.SchedulerDriver, executor *mesos.ExecutorID, slave *mesos.SlaveID, message string) {

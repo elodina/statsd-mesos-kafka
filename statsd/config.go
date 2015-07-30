@@ -28,6 +28,7 @@ var Config *config = &config{
 	FrameworkRole: "*",
 	Cpus:          0.1,
 	Mem:           64,
+	LogLevel:      "info",
 }
 
 var executorMask = regexp.MustCompile("executor.*")
@@ -45,15 +46,15 @@ type config struct {
 }
 
 func (c *config) String() string {
-	return fmt.Sprintf(`api: %s
-master: %s
+	return fmt.Sprintf(`api:            %s
+master:         %s
 framework name: %s
 framework role: %s
-user: %s
-cpus: %f
-mem: %f
-executor: %s
-log level: %s
+user:           %s
+cpus:           %.2f
+mem:            %.2f
+executor:       %s
+log level:      %s
 `, c.Api, c.Master, c.FrameworkName, c.FrameworkRole, c.User, c.Cpus, c.Mem,
 		c.Executor, c.LogLevel)
 }

@@ -18,37 +18,37 @@ limitations under the License. */
 package main
 
 import (
-    "github.com/mesos/mesos-go/executor"
-    "github.com/stealthly/statsd-mesos-kafka/statsd"
-    "fmt"
-    "os"
-    "flag"
+	"flag"
+	"fmt"
+	"github.com/mesos/mesos-go/executor"
+	"github.com/stealthly/statsd-mesos-kafka/statsd"
+	"os"
 )
 
 var logLevel = flag.String("log.level", "info", "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
 
 func main() {
-    flag.Parse()
-    err := statsd.InitLogging(*logLevel)
-    if err != nil {
-        fmt.Println(err)
-        os.Exit(1)
-    }
+	flag.Parse()
+	err := statsd.InitLogging(*logLevel)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-    driverConfig := executor.DriverConfig{
-        Executor: new(statsd.Executor),
-    }
+	driverConfig := executor.DriverConfig{
+		Executor: new(statsd.Executor),
+	}
 
-    driver, err := executor.NewMesosExecutorDriver(driverConfig)
-    if err != nil {
-        statsd.Logger.Error(err)
-        os.Exit(1)
-    }
+	driver, err := executor.NewMesosExecutorDriver(driverConfig)
+	if err != nil {
+		statsd.Logger.Error(err)
+		os.Exit(1)
+	}
 
-    _, err = driver.Start()
-    if err != nil {
-        statsd.Logger.Error(err)
-        os.Exit(1)
-    }
-    driver.Join()
+	_, err = driver.Start()
+	if err != nil {
+		statsd.Logger.Error(err)
+		os.Exit(1)
+	}
+	driver.Join()
 }
