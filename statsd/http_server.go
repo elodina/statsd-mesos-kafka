@@ -34,10 +34,24 @@ func NewHttpServer(address string) *HttpServer {
 }
 
 func (hs *HttpServer) Start() {
-	http.HandleFunc("/resource/", func(w http.ResponseWriter, r *http.Request) {
-		resourceTokens := strings.Split(r.URL.Path, "/")
-		resource := resourceTokens[len(resourceTokens)-1]
-		http.ServeFile(w, r, resource)
-	})
+	http.HandleFunc("/resource/", serveFile)
+	http.HandleFunc("/api/start", handleStart)
+	http.HandleFunc("/api/stop", handleStop)
 	http.ListenAndServe(hs.address, nil)
+}
+
+func serveFile(w http.ResponseWriter, r *http.Request) {
+	resourceTokens := strings.Split(r.URL.Path, "/")
+	resource := resourceTokens[len(resourceTokens)-1]
+	http.ServeFile(w, r, resource)
+}
+
+func handleStart(w http.ResponseWriter, r *http.Request) {
+	sched.SetActive(true)
+	w.WriteHeader(200)
+}
+
+func handleStop(w http.ResponseWriter, r *http.Request) {
+	sched.SetActive(false)
+	w.WriteHeader(200)
 }

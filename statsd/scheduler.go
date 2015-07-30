@@ -24,15 +24,22 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"sync"
 )
+
+var sched *Scheduler // This is needed for HTTP server to be able to update this scheduler
 
 type Scheduler struct {
 	httpServer *HttpServer
 	cluster    *Cluster
+	active     bool
+	activeLock sync.Mutex
+	driver     scheduler.SchedulerDriver
 }
 
 func (s *Scheduler) Start() error {
 	Logger.Infof("Starting scheduler with configuration: \n%s", Config)
+	sched = s // set this scheduler reachable for http server
 
 	ctrlc := make(chan os.Signal, 1)
 	signal.Notify(ctrlc, os.Interrupt)
@@ -79,20 +86,50 @@ func (s *Scheduler) Start() error {
 	return nil
 }
 
+func (s *Scheduler) SetActive(active bool) {
+	s.activeLock.Lock()
+	defer s.activeLock.Unlock()
+
+	s.active = active
+	if !s.active {
+		for _, task := range s.cluster.GetAllTasks() {
+			Logger.Debugf("Killing task %s", task.GetTaskId().GetValue())
+			s.driver.KillTask(task.GetTaskId())
+		}
+	}
+}
+
 func (s *Scheduler) Registered(driver scheduler.SchedulerDriver, id *mesos.FrameworkID, master *mesos.MasterInfo) {
 	Logger.Infof("[Registered] framework: %s master: %s:%d", id.GetValue(), master.GetHostname(), master.GetPort())
+
+	s.driver = driver
 }
 
 func (s *Scheduler) Reregistered(driver scheduler.SchedulerDriver, master *mesos.MasterInfo) {
 	Logger.Infof("[Reregistered] master: %s:%d", master.GetHostname(), master.GetPort())
+
+	s.driver = driver
 }
 
 func (s *Scheduler) Disconnected(scheduler.SchedulerDriver) {
 	Logger.Info("[Disconnected]")
+
+	s.driver = nil
 }
 
 func (s *Scheduler) ResourceOffers(driver scheduler.SchedulerDriver, offers []*mesos.Offer) {
 	Logger.Debugf("[ResourceOffers] %s", offersString(offers))
+
+	s.activeLock.Lock()
+	defer s.activeLock.Unlock()
+
+	if !s.active {
+		Logger.Debug("Scheduler is inactive. Declining all offers.")
+		for _, offer := range offers {
+			driver.DeclineOffer(offer.GetId(), &mesos.Filters{RefuseSeconds: proto.Float64(1)})
+		}
+		return
+	}
 
 	for _, offer := range offers {
 		declineReason := s.acceptOffer(driver, offer)

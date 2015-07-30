@@ -53,6 +53,7 @@ func (s *StatsDServer) Stop() {
 
 	Logger.Info("Stopping StatsD server")
 	s.closeChan <- struct{}{}
+	close(s.incoming)
 	s.closed = true
 }
 

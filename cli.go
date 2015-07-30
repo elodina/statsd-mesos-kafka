@@ -20,6 +20,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/stealthly/statsd-mesos-kafka/statsd"
+	"net/http"
 	"os"
 )
 
@@ -46,6 +47,8 @@ func exec() error {
 		return nil
 	} else if command == "scheduler" {
 		return handleScheduler(commandArgs)
+	} else if command == "start" || command == "stop" {
+		return handleStartStop(commandArgs, command == "start")
 	} else {
 		return fmt.Errorf("Unknown command: %s\n", command)
 	}
@@ -82,6 +85,34 @@ func handleScheduler(commandArgs []string) error {
 	}
 
 	return new(statsd.Scheduler).Start()
+}
+
+func handleStartStop(commandArgs []string, start bool) error {
+	var api string
+	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
+
+	flag.Parse()
+
+	if err := resolveApi(api); err != nil {
+		return err
+	}
+
+	apiMethod := "start"
+	if !start {
+		apiMethod = "stop"
+	}
+	response, err := http.Get(statsd.Config.Api + "/api/" + apiMethod)
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return fmt.Errorf("API returned status code %d", response.StatusCode)
+	}
+
+	fmt.Println("Ok")
+
+	return nil
 }
 
 func resolveApi(api string) error {

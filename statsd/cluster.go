@@ -51,3 +51,15 @@ func (c *Cluster) Add(hostname string, task *mesos.TaskInfo) {
 
 	c.tasks[hostname] = task
 }
+
+func (c *Cluster) GetAllTasks() []*mesos.TaskInfo {
+	c.taskLock.Lock()
+	defer c.taskLock.Unlock()
+
+	tasks := make([]*mesos.TaskInfo, 0)
+	for _, task := range c.tasks {
+		tasks = append(tasks, task)
+	}
+
+	return tasks
+}
