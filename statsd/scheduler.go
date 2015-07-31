@@ -24,6 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 )
 
@@ -146,6 +147,14 @@ func (s *Scheduler) OfferRescinded(driver scheduler.SchedulerDriver, id *mesos.O
 
 func (s *Scheduler) StatusUpdate(driver scheduler.SchedulerDriver, status *mesos.TaskStatus) {
 	Logger.Infof("[StatusUpdate] %s", statusString(status))
+
+	hostname := s.hostnameFromTaskId(status.GetTaskId().GetValue())
+
+	if status.GetState() == mesos.TaskState_TASK_FAILED || status.GetState() == mesos.TaskState_TASK_KILLED ||
+		status.GetState() == mesos.TaskState_TASK_LOST || status.GetState() == mesos.TaskState_TASK_ERROR ||
+		status.GetState() == mesos.TaskState_TASK_FINISHED {
+		s.cluster.Remove(hostname)
+	}
 }
 
 func (s *Scheduler) FrameworkMessage(driver scheduler.SchedulerDriver, executor *mesos.ExecutorID, slave *mesos.SlaveID, message string) {
@@ -230,6 +239,14 @@ func (s *Scheduler) createExecutor(hostname string) *mesos.ExecutorInfo {
 			},
 		},
 	}
+}
+
+func (s *Scheduler) hostnameFromTaskId(taskId string) string {
+	tokens := strings.SplitN(taskId, "-", 3)
+	hostname := tokens[len(tokens)-1]
+	hostname = hostname[:len(hostname)-37] //strip uuid part
+	Logger.Debugf("Hostname extracted from %s is %s", taskId, hostname)
+	return hostname
 }
 
 func (s *Scheduler) resolveDeps() error {

@@ -22,8 +22,9 @@ import (
 )
 
 type StatsDServer struct {
-	UDPAddr  string
-	incoming chan string
+	addr       string
+	connection *net.UDPConn
+	incoming   chan string
 
 	closeChan chan struct{}
 	closed    bool
@@ -32,7 +33,7 @@ type StatsDServer struct {
 
 func NewStatsDServer(addr string) *StatsDServer {
 	return &StatsDServer{
-		UDPAddr:   addr,
+		addr:      addr,
 		incoming:  make(chan string, 100), //TODO buffer size should be configurable
 		closeChan: make(chan struct{}, 1),
 	}
@@ -53,13 +54,14 @@ func (s *StatsDServer) Stop() {
 
 	Logger.Info("Stopping StatsD server")
 	s.closeChan <- struct{}{}
+	s.connection.Close()
 	close(s.incoming)
 	s.closed = true
 }
 
 func (s *StatsDServer) startUDPServer() {
-	Logger.Debugf("Starting StatsD server at %s", s.UDPAddr)
-	udpAddr, err := net.ResolveUDPAddr("udp", s.UDPAddr)
+	Logger.Debugf("Starting StatsD server at %s", s.addr)
+	udpAddr, err := net.ResolveUDPAddr("udp", s.addr)
 	if err != nil {
 		panic(err)
 	}
@@ -68,6 +70,7 @@ func (s *StatsDServer) startUDPServer() {
 	if err != nil {
 		panic(err)
 	}
+	s.connection = connection
 
 	go func() {
 		for {
@@ -80,7 +83,7 @@ func (s *StatsDServer) startUDPServer() {
 			s.scan(connection)
 		}
 	}()
-	Logger.Infof("Listening for messages at UDP %s", s.UDPAddr)
+	Logger.Infof("Listening for messages at UDP %s", s.addr)
 }
 
 func (s *StatsDServer) scan(connection net.Conn) {
