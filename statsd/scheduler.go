@@ -16,6 +16,7 @@ limitations under the License. */
 package statsd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	mesos "github.com/mesos/mesos-go/mesosproto"
@@ -208,6 +209,12 @@ func (s *Scheduler) launchTask(driver scheduler.SchedulerDriver, offer *mesos.Of
 		Value: proto.String(fmt.Sprintf("%s-%s", taskName, uuid())),
 	}
 
+	data, err := json.Marshal(Config)
+	if err != nil {
+		panic(err) //shouldn't happen
+	}
+	Logger.Debugf("Task data: %s", string(data))
+
 	task := &mesos.TaskInfo{
 		Name:     proto.String(taskName),
 		TaskId:   taskId,
@@ -217,6 +224,7 @@ func (s *Scheduler) launchTask(driver scheduler.SchedulerDriver, offer *mesos.Of
 			util.NewScalarResource("cpus", Config.Cpus),
 			util.NewScalarResource("mem", Config.Mem),
 		},
+		Data: data,
 	}
 
 	s.cluster.Add(offer.GetHostname(), task)
@@ -235,6 +243,9 @@ func (s *Scheduler) createExecutor(hostname string) *mesos.ExecutorInfo {
 				&mesos.CommandInfo_URI{
 					Value:      proto.String(fmt.Sprintf("%s/resource/%s", Config.Api, Config.Executor)),
 					Executable: proto.Bool(true),
+				},
+				&mesos.CommandInfo_URI{
+					Value: proto.String(fmt.Sprintf("%s/resource/%s", Config.Api, Config.ProducerProperties)),
 				},
 			},
 		},

@@ -16,8 +16,11 @@ limitations under the License. */
 package statsd
 
 import (
+	"encoding/json"
 	"fmt"
 	log "github.com/cihub/seelog"
+	mesos "github.com/mesos/mesos-go/mesosproto"
+	"os"
 	"regexp"
 )
 
@@ -28,6 +31,7 @@ var Config *config = &config{
 	FrameworkRole: "*",
 	Cpus:          0.1,
 	Mem:           64,
+	Mode:          "plain",
 	LogLevel:      "info",
 }
 
@@ -44,11 +48,23 @@ type config struct {
 	Executor           string
 	ProducerProperties string
 	Topic              string
+	Mode               string
 	LogLevel           string
 }
 
 func (c *config) CanStart() bool {
 	return c.ProducerProperties != "" && c.Topic != ""
+}
+
+func (c *config) Read(task *mesos.TaskInfo) {
+	config := new(config)
+	Logger.Debugf("Task data: %s", string(task.GetData()))
+	err := json.Unmarshal(task.GetData(), config)
+	if err != nil {
+		Logger.Critical(err)
+		os.Exit(1)
+	}
+	*c = *config
 }
 
 func (c *config) String() string {

@@ -16,9 +16,12 @@ limitations under the License. */
 package statsd
 
 import (
+	"github.com/jimlawless/cfg"
 	"github.com/mesos/mesos-go/executor"
 	mesos "github.com/mesos/mesos-go/mesosproto"
+	"github.com/stealthly/siesta"
 	"os"
+	"strings"
 )
 
 type Executor struct {
@@ -40,6 +43,13 @@ func (e *Executor) Disconnected(executor.ExecutorDriver) {
 func (e *Executor) LaunchTask(driver executor.ExecutorDriver, task *mesos.TaskInfo) {
 	Logger.Infof("[LaunchTask] %s", task)
 
+	Config.Read(task)
+	producer, err := e.newProducer() //create producer before sending the running status
+	if err != nil {
+		Logger.Errorf("Failed to create producer: %s", err)
+		os.Exit(1)
+	}
+
 	runStatus := &mesos.TaskStatus{
 		TaskId: task.GetTaskId(),
 		State:  mesos.TaskState_TASK_RUNNING.Enum(),
@@ -51,7 +61,7 @@ func (e *Executor) LaunchTask(driver executor.ExecutorDriver, task *mesos.TaskIn
 	}
 
 	go func() {
-		e.server = NewStatsDServer("0.0.0.0:8125") //TODO I know we want to listen to 8125 only in our case but still this should be configurable
+		e.server = NewStatsDServer("0.0.0.0:8125", producer) //TODO I know we want to listen to 8125 only in our case but still this should be configurable
 		e.server.Start()
 
 		// finish task
@@ -84,4 +94,26 @@ func (e *Executor) Shutdown(driver executor.ExecutorDriver) {
 
 func (e *Executor) Error(driver executor.ExecutorDriver, message string) {
 	Logger.Errorf("[Error] %s", message)
+}
+
+func (e *Executor) newProducer() (*siesta.KafkaProducer, error) {
+	producerConfig, err := siesta.ProducerConfigFromFile(Config.ProducerProperties)
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := cfg.LoadNewMap(Config.ProducerProperties)
+	if err != nil {
+		return nil, err
+	}
+
+	connectorConfig := siesta.NewConnectorConfig()
+	connectorConfig.BrokerList = strings.Split(c["bootstrap.servers"], ",")
+
+	connector, err := siesta.NewDefaultConnector(connectorConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return siesta.NewKafkaProducer(producerConfig, siesta.ByteSerializer, siesta.StringSerializer, connector), nil
 }

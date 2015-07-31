@@ -17,23 +17,27 @@ package statsd
 
 import (
 	"bufio"
+	"github.com/stealthly/siesta"
 	"net"
 	"sync"
+	"time"
 )
 
 type StatsDServer struct {
 	addr       string
 	connection *net.UDPConn
 	incoming   chan string
+	producer   *siesta.KafkaProducer
 
 	closeChan chan struct{}
 	closed    bool
 	closeLock sync.Mutex
 }
 
-func NewStatsDServer(addr string) *StatsDServer {
+func NewStatsDServer(addr string, producer *siesta.KafkaProducer) *StatsDServer {
 	return &StatsDServer{
 		addr:      addr,
+		producer:  producer,
 		incoming:  make(chan string, 100), //TODO buffer size should be configurable
 		closeChan: make(chan struct{}, 1),
 	}
@@ -56,6 +60,7 @@ func (s *StatsDServer) Stop() {
 	s.closeChan <- struct{}{}
 	s.connection.Close()
 	close(s.incoming)
+	s.producer.Close(5 * time.Second)
 	s.closed = true
 }
 
@@ -95,6 +100,6 @@ func (s *StatsDServer) scan(connection net.Conn) {
 
 func (s *StatsDServer) startProducer() {
 	for message := range s.incoming {
-		Logger.Infof("Got message: %s", message) //TODO
+		s.producer.Send(&siesta.ProducerRecord{Topic: Config.Topic, Value: message})
 	}
 }
