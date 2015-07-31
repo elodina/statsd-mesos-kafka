@@ -20,7 +20,6 @@ import (
 	"flag"
 	"fmt"
 	"github.com/stealthly/statsd-mesos-kafka/statsd"
-	"net/http"
 	"os"
 )
 
@@ -49,6 +48,8 @@ func exec() error {
 		return handleScheduler(commandArgs)
 	} else if command == "start" || command == "stop" {
 		return handleStartStop(commandArgs, command == "start")
+	} else if command == "update" {
+		return handleUpdate(commandArgs)
 	} else {
 		return fmt.Errorf("Unknown command: %s\n", command)
 	}
@@ -101,16 +102,49 @@ func handleStartStop(commandArgs []string, start bool) error {
 	if !start {
 		apiMethod = "stop"
 	}
-	response, err := http.Get(statsd.Config.Api + "/api/" + apiMethod)
-	if err != nil {
+
+	request := statsd.NewApiRequest(statsd.Config.Api + "/api/" + apiMethod)
+	response := request.Get()
+	//	response, err := http.Get(statsd.Config.Api + "/api/" + apiMethod)
+	//	if err != nil {
+	//		return err
+	//	}
+	//
+	//	if response.StatusCode < 200 || response.StatusCode >= 300 {
+	//		return fmt.Errorf("API returned status code %d", response.StatusCode)
+	//	}
+
+	fmt.Println(response.Message)
+
+	return nil
+}
+
+func handleUpdate(commandArgs []string) error {
+	var api string
+	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
+	flag.StringVar(&statsd.Config.ProducerProperties, "producer.properties", "", "Producer.properties file name.")
+	flag.StringVar(&statsd.Config.Topic, "topic", "", "Topic to produce data to.")
+
+	flag.Parse()
+
+	if err := resolveApi(api); err != nil {
 		return err
 	}
 
-	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		return fmt.Errorf("API returned status code %d", response.StatusCode)
-	}
+	request := statsd.NewApiRequest(statsd.Config.Api + "/api/update")
+	request.AddParam("producer.properties", statsd.Config.ProducerProperties)
+	request.AddParam("topic", statsd.Config.Topic)
+	response := request.Get()
+	//    response, err := http.Get(statsd.Config.Api + "/api/update")
+	//    if err != nil {
+	//        return err
+	//    }
+	//
+	//    if response.StatusCode < 200 || response.StatusCode >= 300 {
+	//        return fmt.Errorf("API returned status code %d", response.StatusCode)
+	//    }
 
-	fmt.Println("Ok")
+	fmt.Println(response.Message)
 
 	return nil
 }

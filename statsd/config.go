@@ -34,29 +34,37 @@ var Config *config = &config{
 var executorMask = regexp.MustCompile("executor.*")
 
 type config struct {
-	Api           string
-	Master        string
-	FrameworkName string
-	FrameworkRole string
-	User          string
-	Cpus          float64
-	Mem           float64
-	Executor      string
-	LogLevel      string
+	Api                string
+	Master             string
+	FrameworkName      string
+	FrameworkRole      string
+	User               string
+	Cpus               float64
+	Mem                float64
+	Executor           string
+	ProducerProperties string
+	Topic              string
+	LogLevel           string
+}
+
+func (c *config) CanStart() bool {
+	return c.ProducerProperties != "" && c.Topic != ""
 }
 
 func (c *config) String() string {
-	return fmt.Sprintf(`api:            %s
-master:         %s
-framework name: %s
-framework role: %s
-user:           %s
-cpus:           %.2f
-mem:            %.2f
-executor:       %s
-log level:      %s
+	return fmt.Sprintf(`api:                 %s
+master:              %s
+framework name:      %s
+framework role:      %s
+user:                %s
+cpus:                %.2f
+mem:                 %.2f
+executor:            %s
+producer properties: %s
+topic:               %s
+log level:           %s
 `, c.Api, c.Master, c.FrameworkName, c.FrameworkRole, c.User, c.Cpus, c.Mem,
-		c.Executor, c.LogLevel)
+		c.Executor, c.ProducerProperties, c.Topic, c.LogLevel)
 }
 
 func InitLogging(level string) error {

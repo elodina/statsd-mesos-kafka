@@ -16,7 +16,9 @@ limitations under the License. */
 package statsd
 
 import (
+	"encoding/json"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
@@ -37,6 +39,7 @@ func (hs *HttpServer) Start() {
 	http.HandleFunc("/resource/", serveFile)
 	http.HandleFunc("/api/start", handleStart)
 	http.HandleFunc("/api/stop", handleStop)
+	http.HandleFunc("/api/update", handleUpdate)
 	http.ListenAndServe(hs.address, nil)
 }
 
@@ -47,11 +50,45 @@ func serveFile(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleStart(w http.ResponseWriter, r *http.Request) {
-	sched.SetActive(true)
-	w.WriteHeader(200)
+	if Config.CanStart() {
+		sched.SetActive(true)
+		respond(true, "Servers started", w)
+	} else {
+		respond(false, "producer.properties and topic must be set before starting.", w)
+	}
 }
 
 func handleStop(w http.ResponseWriter, r *http.Request) {
 	sched.SetActive(false)
-	w.WriteHeader(200)
+	respond(true, "Servers stopped", w)
+}
+
+func handleUpdate(w http.ResponseWriter, r *http.Request) {
+	queryParams := r.URL.Query()
+	setConfig(queryParams, "producer.properties", &Config.ProducerProperties)
+	setConfig(queryParams, "topic", &Config.Topic)
+
+	Logger.Infof("Scheduler configuration updated: \n%s", Config)
+	respond(true, "Configuration updated", w)
+}
+
+func setConfig(queryParams url.Values, name string, config *string) {
+	value := queryParams.Get(name)
+	if value != "" {
+		*config = value
+	}
+}
+
+func respond(success bool, message string, w http.ResponseWriter) {
+	response := NewApiResponse(success, message)
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		panic(err) //this shouldn't happen
+	}
+	if success {
+		w.WriteHeader(200)
+	} else {
+		w.WriteHeader(500)
+	}
+	w.Write(bytes)
 }
