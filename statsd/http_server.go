@@ -54,7 +54,7 @@ func handleStart(w http.ResponseWriter, r *http.Request) {
 		sched.SetActive(true)
 		respond(true, "Servers started", w)
 	} else {
-		respond(false, "producer.properties and topic must be set before starting.", w)
+		respond(false, "producer.properties and topic must be set before starting. schema.registry.url must be set for avro transform.", w)
 	}
 }
 
@@ -67,6 +67,8 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	setConfig(queryParams, "producer.properties", &Config.ProducerProperties)
 	setConfig(queryParams, "topic", &Config.Topic)
+	setConfig(queryParams, "transform", &Config.Transform)
+	setConfig(queryParams, "schema.registry.url", &Config.SchemaRegistryUrl)
 
 	Logger.Infof("Scheduler configuration updated: \n%s", Config)
 	respond(true, "Configuration updated", w)

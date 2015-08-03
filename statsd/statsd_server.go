@@ -28,16 +28,18 @@ type StatsDServer struct {
 	connection *net.UDPConn
 	incoming   chan string
 	producer   *siesta.KafkaProducer
+	transform  func(string) interface{}
 
 	closeChan chan struct{}
 	closed    bool
 	closeLock sync.Mutex
 }
 
-func NewStatsDServer(addr string, producer *siesta.KafkaProducer) *StatsDServer {
+func NewStatsDServer(addr string, producer *siesta.KafkaProducer, transform func(string) interface{}) *StatsDServer {
 	return &StatsDServer{
 		addr:      addr,
 		producer:  producer,
+		transform: transform,
 		incoming:  make(chan string, 100), //TODO buffer size should be configurable
 		closeChan: make(chan struct{}, 1),
 	}
@@ -100,6 +102,6 @@ func (s *StatsDServer) scan(connection net.Conn) {
 
 func (s *StatsDServer) startProducer() {
 	for message := range s.incoming {
-		s.producer.Send(&siesta.ProducerRecord{Topic: Config.Topic, Value: message})
+		s.producer.Send(&siesta.ProducerRecord{Topic: Config.Topic, Value: s.transform(message)})
 	}
 }

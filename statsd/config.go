@@ -31,7 +31,7 @@ var Config *config = &config{
 	FrameworkRole: "*",
 	Cpus:          0.1,
 	Mem:           64,
-	Mode:          "plain",
+	Transform:     "none",
 	LogLevel:      "info",
 }
 
@@ -48,11 +48,15 @@ type config struct {
 	Executor           string
 	ProducerProperties string
 	Topic              string
-	Mode               string
+	Transform          string // none, avro, proto
+	SchemaRegistryUrl  string
 	LogLevel           string
 }
 
 func (c *config) CanStart() bool {
+	if c.Transform == TransformAvro && c.SchemaRegistryUrl == "" {
+		return false
+	}
 	return c.ProducerProperties != "" && c.Topic != ""
 }
 
@@ -78,9 +82,10 @@ mem:                 %.2f
 executor:            %s
 producer properties: %s
 topic:               %s
+transform:           %s
 log level:           %s
 `, c.Api, c.Master, c.FrameworkName, c.FrameworkRole, c.User, c.Cpus, c.Mem,
-		c.Executor, c.ProducerProperties, c.Topic, c.LogLevel)
+		c.Executor, c.ProducerProperties, c.Topic, c.Transform, c.LogLevel)
 }
 
 func InitLogging(level string) error {
