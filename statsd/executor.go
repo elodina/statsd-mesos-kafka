@@ -16,17 +16,19 @@ limitations under the License. */
 package statsd
 
 import (
+	"os"
+	"strings"
+
 	"github.com/jimlawless/cfg"
 	"github.com/mesos/mesos-go/executor"
 	mesos "github.com/mesos/mesos-go/mesosproto"
 	"github.com/stealthly/go_kafka_client"
 	"github.com/stealthly/siesta"
-	"os"
-	"strings"
 )
 
 type Executor struct {
 	server *StatsDServer
+	Host   string
 }
 
 func (e *Executor) Registered(driver executor.ExecutorDriver, executor *mesos.ExecutorInfo, framework *mesos.FrameworkInfo, slave *mesos.SlaveInfo) {
@@ -52,7 +54,7 @@ func (e *Executor) LaunchTask(driver executor.ExecutorDriver, task *mesos.TaskIn
 		os.Exit(1)
 	}
 
-	transformSerializer := serializer(Config.Transform)
+	transformSerializer := e.serializer(Config.Transform)
 
 	producer, err := e.newProducer(transformSerializer) //create producer before sending the running status
 	if err != nil {
@@ -71,7 +73,7 @@ func (e *Executor) LaunchTask(driver executor.ExecutorDriver, task *mesos.TaskIn
 	}
 
 	go func() {
-		e.server = NewStatsDServer("0.0.0.0:8125", producer, transformFunc) //TODO I know we want to listen to 8125 only in our case but still this should be configurable
+		e.server = NewStatsDServer("0.0.0.0:8125", producer, transformFunc, e.Host) //TODO I know we want to listen to 8125 only in our case but still this should be configurable
 		e.server.Start()
 
 		// finish task
@@ -128,7 +130,7 @@ func (e *Executor) newProducer(valueSerializer func(interface{}) ([]byte, error)
 	return siesta.NewKafkaProducer(producerConfig, siesta.ByteSerializer, valueSerializer, connector), nil
 }
 
-func serializer(transform string) func(interface{}) ([]byte, error) {
+func (e *Executor) serializer(transform string) func(interface{}) ([]byte, error) {
 	switch transform {
 	case TransformNone:
 		return siesta.StringSerializer

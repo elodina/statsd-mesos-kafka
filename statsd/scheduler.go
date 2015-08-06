@@ -18,15 +18,16 @@ package statsd
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/golang/protobuf/proto"
-	mesos "github.com/mesos/mesos-go/mesosproto"
-	util "github.com/mesos/mesos-go/mesosutil"
-	"github.com/mesos/mesos-go/scheduler"
 	"io/ioutil"
 	"os"
 	"os/signal"
 	"strings"
 	"sync"
+
+	"github.com/golang/protobuf/proto"
+	mesos "github.com/mesos/mesos-go/mesosproto"
+	util "github.com/mesos/mesos-go/mesosutil"
+	"github.com/mesos/mesos-go/scheduler"
 )
 
 var sched *Scheduler // This is needed for HTTP server to be able to update this scheduler
@@ -238,7 +239,7 @@ func (s *Scheduler) createExecutor(hostname string) *mesos.ExecutorInfo {
 		ExecutorId: util.NewExecutorID(id),
 		Name:       proto.String(id),
 		Command: &mesos.CommandInfo{
-			Value: proto.String(fmt.Sprintf("./%s --log.level %s", Config.Executor, Config.LogLevel)),
+			Value: proto.String(fmt.Sprintf("./%s --log.level %s --host %s", Config.Executor, Config.LogLevel, hostname)),
 			Uris: []*mesos.CommandInfo_URI{
 				&mesos.CommandInfo_URI{
 					Value:      proto.String(fmt.Sprintf("%s/resource/%s", Config.Api, Config.Executor)),
