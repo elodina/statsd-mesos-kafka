@@ -59,7 +59,14 @@ func exec() error {
 }
 
 func handleHelp() error {
-	fmt.Println("help message") //TODO
+	fmt.Println(`Usage:
+  help: show this message
+  scheduler: configure scheduler
+  start: start framework
+  stop: stop framework
+  update: update configuration
+  status: get current status of cluster
+More help you can get from ./cli <command> -h`)
 	return nil
 }
 
@@ -79,7 +86,7 @@ func handleScheduler() error {
 	flag.StringVar(&user, "user", "", "Mesos user. Defaults to current system user")
 	flag.StringVar(&logLevel, "log.level", statsd.Config.LogLevel, "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
 	flag.StringVar(&statsd.Config.FrameworkName, "framework.name", statsd.Config.FrameworkName, "Framework name.")
-	flag.StringVar(&statsd.Config.FrameworkRole, "framework.role", statsd.Config.FrameworkRole, "Framework name.")
+	flag.StringVar(&statsd.Config.FrameworkRole, "framework.role", statsd.Config.FrameworkRole, "Framework role.")
 
 	flag.Parse()
 
