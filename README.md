@@ -41,12 +41,12 @@ The scheduler is configured through the command line.
 
 Following options are available:
 
--master="": Mesos Master addresses.
--api="": Binding host:port for http/artifact server. Optional if SM_API env is set.
--user="": Mesos user. Defaults to current system user.
--log.level="info": Log level. trace|debug|info|warn|error|critical. Defaults to info.
--framework.name="statsd-kafka": Framework name.
--framework.role="*": Framework role.
+    -master="": Mesos Master addresses.
+    -api="": Binding host:port for http/artifact server. Optional if SM_API env is set.
+    -user="": Mesos user. Defaults to current system user.
+    -log.level="info": Log level. trace|debug|info|warn|error|critical. Defaults to info.
+    -framework.name="statsd-kafka": Framework name.
+    -framework.role="*": Framework role.
 
 Starting and Stopping a Server
 ------------------------------
@@ -54,6 +54,7 @@ Starting and Stopping a Server
     # ./cli start|stop <options>
 
 Options available:
+
     -api="": Binding host:port for http/artifact server. Optional if SM_API env is set.
 
 Updating Server Preferences
