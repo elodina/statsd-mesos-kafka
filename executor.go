@@ -20,12 +20,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/mesos/mesos-go/executor"
 	"github.com/stealthly/statsd-mesos-kafka/statsd"
-	"os"
 )
 
 var logLevel = flag.String("log.level", "info", "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
+var host = flag.String("host", "localhost", "Hostname of the executor")
 
 func main() {
 	flag.Parse()
@@ -36,7 +38,7 @@ func main() {
 	}
 
 	driverConfig := executor.DriverConfig{
-		Executor: new(statsd.Executor),
+		Executor: &statsd.Executor{Host: *host}
 	}
 
 	driver, err := executor.NewMesosExecutorDriver(driverConfig)

@@ -16,6 +16,8 @@ limitations under the License. */
 package statsd
 
 import (
+	"time"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/stealthly/statsd-mesos-kafka/statsd/avro"
 	pb "github.com/stealthly/statsd-mesos-kafka/statsd/proto"
@@ -27,28 +29,36 @@ const (
 	TransformProto = "proto"
 )
 
-var transformFunctions map[string]func(string) interface{} = map[string]func(string) interface{}{
+var transformFunctions map[string]func(string, string) interface{} = map[string]func(string, string) interface{}{
 	TransformNone:  transformNone,
 	TransformAvro:  transformAvro,
 	TransformProto: transformProto,
 }
 
-func transformNone(message string) interface{} {
+func transformNone(message string, host string) interface{} {
 	return message
 }
 
-func transformAvro(message string) interface{} {
+func transformAvro(message string, host string) interface{} {
 	logLine := avro.NewLogLine()
 	logLine.Line = message
+	logLine.Logtypeid = 0
+	logLine.Source = host
+	timing := &avro.Timing{Value: time.Now().UnixNano(), EventName: "received"}
+	logLine.Timings = []*avro.Timing{timing}
 
 	return logLine
 }
 
-func transformProto(message string) interface{} {
+func transformProto(message string, host string) interface{} {
 	Logger.Info("proto transform")
 
 	logLine := new(pb.LogLine) //TODO set logtypeid, source, timings
 	logLine.Line = proto.String(message)
+	logLine.Logtypeid = proto.Int64(0)
+	logLine.Source = proto.String(host)
+	timing := &pb.LogLine_Timing{Value: proto.Int64(time.Now().UnixNano()), EventName: proto.String("received")}
+	logLine.Timings = []*pb.LogLine_Timing{timing}
 
 	serialized, err := proto.Marshal(logLine)
 	if err != nil {

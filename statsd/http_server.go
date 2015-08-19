@@ -17,9 +17,12 @@ package statsd
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
+
+	mesos "github.com/mesos/mesos-go/mesosproto"
 )
 
 type HttpServer struct {
@@ -40,6 +43,7 @@ func (hs *HttpServer) Start() {
 	http.HandleFunc("/api/start", handleStart)
 	http.HandleFunc("/api/stop", handleStop)
 	http.HandleFunc("/api/update", handleUpdate)
+	http.HandleFunc("/api/status", handleStatus)
 	http.ListenAndServe(hs.address, nil)
 }
 
@@ -72,6 +76,27 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 
 	Logger.Infof("Scheduler configuration updated: \n%s", Config)
 	respond(true, "Configuration updated", w)
+}
+
+func handleStatus(w http.ResponseWriter, r *http.Request) {
+	tasks := sched.cluster.GetAllTasks()
+	response := "cluster:\n"
+	for host, task := range tasks {
+		response += fmt.Sprintf("  server: %s", host)
+		response += fmt.Sprintf("    id: %s", task.GetTaskId())
+		response += fmt.Sprintf("    slave id: %s", task.GetSlaveId())
+		for _, resource := range task.GetResources() {
+			switch *resource.Type {
+			case mesos.Value_SCALAR:
+				response += fmt.Sprintf("    %s: %s", resource.GetName(), resource.GetScalar())
+			case mesos.Value_RANGES:
+				response += fmt.Sprintf("    %s: %s", resource.GetName(), resource.GetRanges())
+			case mesos.Value_SET:
+				response += fmt.Sprintf("    %s: %s", resource.GetName(), resource.GetSet())
+			}
+		}
+	}
+	respond(true, response, w)
 }
 
 func setConfig(queryParams url.Values, name string, config *string) {

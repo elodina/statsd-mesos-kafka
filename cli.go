@@ -19,8 +19,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/stealthly/statsd-mesos-kafka/statsd"
 	"os"
+
+	"github.com/stealthly/statsd-mesos-kafka/statsd"
 )
 
 func main() {
@@ -33,7 +34,7 @@ func main() {
 func exec() error {
 	args := os.Args
 	if len(args) == 1 {
-		handleHelp(nil)
+		handleHelp()
 		return errors.New("No command supplied")
 	}
 
@@ -41,25 +42,41 @@ func exec() error {
 	commandArgs := args[1:]
 	os.Args = commandArgs
 
-	if command == "help" {
-		handleHelp(commandArgs)
-		return nil
-	} else if command == "scheduler" {
-		return handleScheduler(commandArgs)
-	} else if command == "start" || command == "stop" {
-		return handleStartStop(commandArgs, command == "start")
-	} else if command == "update" {
-		return handleUpdate(commandArgs)
-	} else {
-		return fmt.Errorf("Unknown command: %s\n", command)
+	switch command {
+	case "help":
+		return handleHelp()
+	case "scheduler":
+		return handleScheduler()
+	case "start", "stop":
+		return handleStartStop(command == "start")
+	case "update":
+		return handleUpdate()
+	case "status":
+		return handleStatus()
 	}
+
+	return fmt.Errorf("Unknown command: %s\n", command)
 }
 
-func handleHelp(commandArgs []string) {
-	fmt.Println("help message") //TODO
+func handleHelp() error {
+	fmt.Println(`Usage:
+  help: show this message
+  scheduler: configure scheduler
+  start: start framework
+  stop: stop framework
+  update: update configuration
+  status: get current status of cluster
+More help you can get from ./cli <command> -h`)
+	return nil
 }
 
-func handleScheduler(commandArgs []string) error {
+func handleStatus() error {
+	response := statsd.NewApiRequest(statsd.Config.Api + "/api/status").Get()
+	fmt.Println(response.Message)
+	return nil
+}
+
+func handleScheduler() error {
 	var api string
 	var user string
 	var logLevel string
@@ -69,7 +86,7 @@ func handleScheduler(commandArgs []string) error {
 	flag.StringVar(&user, "user", "", "Mesos user. Defaults to current system user")
 	flag.StringVar(&logLevel, "log.level", statsd.Config.LogLevel, "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
 	flag.StringVar(&statsd.Config.FrameworkName, "framework.name", statsd.Config.FrameworkName, "Framework name.")
-	flag.StringVar(&statsd.Config.FrameworkRole, "framework.role", statsd.Config.FrameworkRole, "Framework name.")
+	flag.StringVar(&statsd.Config.FrameworkRole, "framework.role", statsd.Config.FrameworkRole, "Framework role.")
 
 	flag.Parse()
 
@@ -88,7 +105,7 @@ func handleScheduler(commandArgs []string) error {
 	return new(statsd.Scheduler).Start()
 }
 
-func handleStartStop(commandArgs []string, start bool) error {
+func handleStartStop(start bool) error {
 	var api string
 	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
 
@@ -111,7 +128,7 @@ func handleStartStop(commandArgs []string, start bool) error {
 	return nil
 }
 
-func handleUpdate(commandArgs []string) error {
+func handleUpdate() error {
 	var api string
 	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
 	flag.StringVar(&statsd.Config.ProducerProperties, "producer.properties", "", "Producer.properties file name.")
