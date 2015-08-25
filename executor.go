@@ -38,7 +38,7 @@ func main() {
 	}
 
 	driverConfig := executor.DriverConfig{
-		Executor: &statsd.Executor{Host: *host}
+		Executor: &statsd.Executor{Host: *host},
 	}
 
 	driver, err := executor.NewMesosExecutorDriver(driverConfig)
