@@ -18,10 +18,11 @@ package statsd
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/cihub/seelog"
-	mesos "github.com/mesos/mesos-go/mesosproto"
 	"os"
 	"regexp"
+
+	log "github.com/cihub/seelog"
+	mesos "github.com/mesos/mesos-go/mesosproto"
 )
 
 var Logger log.LoggerInterface
@@ -39,6 +40,7 @@ var executorMask = regexp.MustCompile("executor.*")
 
 type config struct {
 	Api                string
+	Listen             string
 	Master             string
 	FrameworkName      string
 	FrameworkRole      string

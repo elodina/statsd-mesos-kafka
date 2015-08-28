@@ -71,6 +71,13 @@ More help you can get from ./cli <command> -h`)
 }
 
 func handleStatus() error {
+	var api string
+	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
+
+	flag.Parse()
+	if err := resolveApi(api); err != nil {
+		return err
+	}
 	response := statsd.NewApiRequest(statsd.Config.Api + "/api/status").Get()
 	fmt.Println(response.Message)
 	return nil
@@ -80,9 +87,11 @@ func handleScheduler() error {
 	var api string
 	var user string
 	var logLevel string
+	var listen string
 
 	flag.StringVar(&statsd.Config.Master, "master", "", "Mesos Master addresses.")
-	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
+	flag.StringVar(&api, "api", "", "API host:port for advertizing.")
+	flag.StringVar(&listen, "listen", "0.0.0.0:6900", "Binding host:port for http/artifact server.")
 	flag.StringVar(&user, "user", "", "Mesos user. Defaults to current system user")
 	flag.StringVar(&logLevel, "log.level", statsd.Config.LogLevel, "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
 	flag.StringVar(&statsd.Config.FrameworkName, "framework.name", statsd.Config.FrameworkName, "Framework name.")
@@ -101,6 +110,8 @@ func handleScheduler() error {
 	if statsd.Config.Master == "" {
 		return errors.New("--master flag is required.")
 	}
+
+	statsd.Config.Listen = listen
 
 	return new(statsd.Scheduler).Start()
 }
