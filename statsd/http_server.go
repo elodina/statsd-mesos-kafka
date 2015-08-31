@@ -73,6 +73,8 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 	setConfig(queryParams, "topic", &Config.Topic)
 	setConfig(queryParams, "transform", &Config.Transform)
 	setConfig(queryParams, "schema.registry.url", &Config.SchemaRegistryUrl)
+	setConfig(queryParams, "cpu", &Config.Cpus)
+	setConfig(queryParams, "mem", &Config.Mem)
 
 	Logger.Infof("Scheduler configuration updated: \n%s", Config)
 	respond(true, "Configuration updated", w)

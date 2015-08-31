@@ -146,6 +146,8 @@ func handleUpdate() error {
 	flag.StringVar(&statsd.Config.Topic, "topic", "", "Topic to produce data to.")
 	flag.StringVar(&statsd.Config.Transform, "transform", "", "Transofmation to apply to each metric. none|avro|proto")
 	flag.StringVar(&statsd.Config.SchemaRegistryUrl, "schema.registry.url", "", "Avro Schema Registry url for transform=avro")
+	flag.Float64Var(&statsd.Config.Cpus, "cpu", 0.1, "CPUs per task")
+	flag.Float64Var(&statsd.Config.Mem, "mem", 64, "Mem per task")
 
 	flag.Parse()
 
@@ -158,6 +160,8 @@ func handleUpdate() error {
 	request.AddParam("topic", statsd.Config.Topic)
 	request.AddParam("transform", statsd.Config.Transform)
 	request.AddParam("schema.registry.url", statsd.Config.SchemaRegistryUrl)
+	request.AddParam("cpu", statsd.Config.Cpus)
+	request.AddParam("mem", statsd.Config.Mem)
 	response := request.Get()
 
 	fmt.Println(response.Message)
