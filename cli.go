@@ -22,6 +22,7 @@ import (
 	"os"
 
 	"github.com/stealthly/statsd-mesos-kafka/statsd"
+    "strconv"
 )
 
 func main() {
@@ -160,8 +161,8 @@ func handleUpdate() error {
 	request.AddParam("topic", statsd.Config.Topic)
 	request.AddParam("transform", statsd.Config.Transform)
 	request.AddParam("schema.registry.url", statsd.Config.SchemaRegistryUrl)
-	request.AddParam("cpu", statsd.Config.Cpus)
-	request.AddParam("mem", statsd.Config.Mem)
+	request.AddParam("cpu", strconv.FormatFloat(statsd.Config.Cpus, 'E', -1, 64))
+	request.AddParam("mem", strconv.FormatFloat(statsd.Config.Mem, 'E', -1, 64))
 	response := request.Get()
 
 	fmt.Println(response.Message)
