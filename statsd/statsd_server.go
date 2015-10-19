@@ -104,6 +104,12 @@ func (s *StatsDServer) scan(connection net.Conn) {
 }
 
 func (s *StatsDServer) startProducer() {
+	go func() {
+		for meta := range s.producer.RecordsMetadata {
+			Logger.Tracef("Received record metadata: topic %s, partition %d, offset %d, error %s", meta.Topic, meta.Partition, meta.Offset, meta.Error)
+		}
+	}()
+
 	for message := range s.incoming {
 		s.producer.Send(&siesta.ProducerRecord{Topic: Config.Topic, Value: s.transform(message, s.host)})
 	}
