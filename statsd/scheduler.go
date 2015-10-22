@@ -129,7 +129,7 @@ func (s *Scheduler) ResourceOffers(driver scheduler.SchedulerDriver, offers []*m
 	if !s.active {
 		Logger.Debug("Scheduler is inactive. Declining all offers.")
 		for _, offer := range offers {
-			driver.DeclineOffer(offer.GetId(), &mesos.Filters{RefuseSeconds: proto.Float64(1)})
+			driver.DeclineOffer(offer.GetId(), &mesos.Filters{RefuseSeconds: proto.Float64(10)})
 		}
 		return
 	}
@@ -137,7 +137,7 @@ func (s *Scheduler) ResourceOffers(driver scheduler.SchedulerDriver, offers []*m
 	for _, offer := range offers {
 		declineReason := s.acceptOffer(driver, offer)
 		if declineReason != "" {
-			driver.DeclineOffer(offer.GetId(), &mesos.Filters{RefuseSeconds: proto.Float64(1)})
+			driver.DeclineOffer(offer.GetId(), &mesos.Filters{RefuseSeconds: proto.Float64(10)})
 			Logger.Debugf("Declined offer: %s", declineReason)
 		}
 	}
