@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	mesos "github.com/mesos/mesos-go/mesosproto"
-    "strconv"
+	"strconv"
 )
 
 type HttpServer struct {
@@ -75,7 +75,7 @@ func handleUpdate(w http.ResponseWriter, r *http.Request) {
 	setConfig(queryParams, "transform", &Config.Transform)
 	setConfig(queryParams, "schema.registry.url", &Config.SchemaRegistryUrl)
 	setFloatConfig(queryParams, "cpu", &Config.Cpus)
-    setFloatConfig(queryParams, "mem", &Config.Mem)
+	setFloatConfig(queryParams, "mem", &Config.Mem)
 
 	Logger.Infof("Scheduler configuration updated: \n%s", Config)
 	respond(true, "Configuration updated", w)
@@ -110,14 +110,14 @@ func setConfig(queryParams url.Values, name string, config *string) {
 }
 
 func setFloatConfig(queryParams url.Values, name string, config *float64) {
-    value := queryParams.Get(name)
-    floatValue, err := strconv.ParseFloat(value, 64)
-    if err != nil {
-        return
-    }
-    if value != "" {
-        *config = floatValue
-    }
+	value := queryParams.Get(name)
+	floatValue, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		return
+	}
+	if value != "" {
+		*config = floatValue
+	}
 }
 
 func respond(success bool, message string, w http.ResponseWriter) {

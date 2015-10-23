@@ -51,7 +51,8 @@ func (s *Scheduler) Start() error {
 		return err
 	}
 
-	s.httpServer = NewHttpServer(Config.Listen)
+	listenAddr := s.listenAddr()
+	s.httpServer = NewHttpServer(listenAddr)
 	go s.httpServer.Start()
 
 	s.cluster = NewCluster()
@@ -274,6 +275,20 @@ func (s *Scheduler) resolveDeps() error {
 	}
 
 	return nil
+}
+
+func (s *Scheduler) listenAddr() string {
+	address := Config.Api
+	if strings.HasPrefix(address, "http://") {
+		address = address[len("http://"):]
+	}
+
+	colonIndex := strings.LastIndex(address, ":")
+	if colonIndex != -1 {
+		address = "0.0.0.0" + address[colonIndex:]
+	}
+
+	return address
 }
 
 func getScalarResources(offer *mesos.Offer, resourceName string) float64 {

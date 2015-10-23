@@ -22,7 +22,7 @@ import (
 	"os"
 
 	"github.com/stealthly/statsd-mesos-kafka/statsd"
-    "strconv"
+	"strconv"
 )
 
 func main() {
