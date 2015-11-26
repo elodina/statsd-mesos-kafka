@@ -109,25 +109,38 @@ func (e *Executor) Error(driver executor.ExecutorDriver, message string) {
 }
 
 func (e *Executor) newProducer(valueSerializer func(interface{}) ([]byte, error)) (*siesta.KafkaProducer, error) {
-	producerConfig, err := siesta.ProducerConfigFromFile(Config.ProducerProperties)
-	if err != nil {
-		return nil, err
+	if Config.ProducerProperties != "" {
+		producerConfig, err := siesta.ProducerConfigFromFile(Config.ProducerProperties)
+		if err != nil {
+			return nil, err
+		}
+
+		c, err := cfg.LoadNewMap(Config.ProducerProperties)
+		if err != nil {
+			return nil, err
+		}
+
+		connectorConfig := siesta.NewConnectorConfig()
+		connectorConfig.BrokerList = strings.Split(c["bootstrap.servers"], ",")
+
+		connector, err := siesta.NewDefaultConnector(connectorConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		return siesta.NewKafkaProducer(producerConfig, siesta.ByteSerializer, valueSerializer, connector), nil
+	} else {
+		producerConfig := siesta.NewProducerConfig()
+		connectorConfig := siesta.NewConnectorConfig()
+		connectorConfig.BrokerList = strings.Split(Config.BrokerList, ",")
+
+		connector, err := siesta.NewDefaultConnector(connectorConfig)
+		if err != nil {
+			return nil, err
+		}
+
+		return siesta.NewKafkaProducer(producerConfig, siesta.ByteSerializer, valueSerializer, connector), nil
 	}
-
-	c, err := cfg.LoadNewMap(Config.ProducerProperties)
-	if err != nil {
-		return nil, err
-	}
-
-	connectorConfig := siesta.NewConnectorConfig()
-	connectorConfig.BrokerList = strings.Split(c["bootstrap.servers"], ",")
-
-	connector, err := siesta.NewDefaultConnector(connectorConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	return siesta.NewKafkaProducer(producerConfig, siesta.ByteSerializer, valueSerializer, connector), nil
 }
 
 func (e *Executor) serializer(transform string) func(interface{}) ([]byte, error) {

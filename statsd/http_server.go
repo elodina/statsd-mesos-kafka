@@ -71,6 +71,7 @@ func handleStop(w http.ResponseWriter, r *http.Request) {
 func handleUpdate(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	setConfig(queryParams, "producer.properties", &Config.ProducerProperties)
+	setConfig(queryParams, "broker.list", &Config.BrokerList)
 	setConfig(queryParams, "topic", &Config.Topic)
 	setConfig(queryParams, "transform", &Config.Transform)
 	setConfig(queryParams, "schema.registry.url", &Config.SchemaRegistryUrl)

@@ -144,6 +144,7 @@ func handleUpdate() error {
 	var api string
 	flag.StringVar(&api, "api", "", "Binding host:port for http/artifact server. Optional if SM_API env is set.")
 	flag.StringVar(&statsd.Config.ProducerProperties, "producer.properties", "", "Producer.properties file name.")
+	flag.StringVar(&statsd.Config.BrokerList, "broker.list", "", "Kafka broker list separated by comma.")
 	flag.StringVar(&statsd.Config.Topic, "topic", "", "Topic to produce data to.")
 	flag.StringVar(&statsd.Config.Transform, "transform", "", "Transofmation to apply to each metric. none|avro|proto")
 	flag.StringVar(&statsd.Config.SchemaRegistryUrl, "schema.registry.url", "", "Avro Schema Registry url for transform=avro")
@@ -158,6 +159,7 @@ func handleUpdate() error {
 
 	request := statsd.NewApiRequest(statsd.Config.Api + "/api/update")
 	request.AddParam("producer.properties", statsd.Config.ProducerProperties)
+	request.AddParam("broker.list", statsd.Config.BrokerList)
 	request.AddParam("topic", statsd.Config.Topic)
 	request.AddParam("transform", statsd.Config.Transform)
 	request.AddParam("schema.registry.url", statsd.Config.SchemaRegistryUrl)

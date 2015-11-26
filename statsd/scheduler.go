@@ -236,20 +236,26 @@ func (s *Scheduler) launchTask(driver scheduler.SchedulerDriver, offer *mesos.Of
 
 func (s *Scheduler) createExecutor(hostname string) *mesos.ExecutorInfo {
 	id := fmt.Sprintf("statsd-kafka-%s", hostname)
+
+	uris := []*mesos.CommandInfo_URI{
+		&mesos.CommandInfo_URI{
+			Value:      proto.String(fmt.Sprintf("%s/resource/%s", Config.Api, Config.Executor)),
+			Executable: proto.Bool(true),
+		},
+	}
+
+	if Config.ProducerProperties != "" {
+		uris = append(uris, &mesos.CommandInfo_URI{
+			Value: proto.String(fmt.Sprintf("%s/resource/%s", Config.Api, Config.ProducerProperties)),
+		})
+	}
+
 	return &mesos.ExecutorInfo{
 		ExecutorId: util.NewExecutorID(id),
 		Name:       proto.String(id),
 		Command: &mesos.CommandInfo{
 			Value: proto.String(fmt.Sprintf("./%s --log.level %s --host %s", Config.Executor, Config.LogLevel, hostname)),
-			Uris: []*mesos.CommandInfo_URI{
-				&mesos.CommandInfo_URI{
-					Value:      proto.String(fmt.Sprintf("%s/resource/%s", Config.Api, Config.Executor)),
-					Executable: proto.Bool(true),
-				},
-				&mesos.CommandInfo_URI{
-					Value: proto.String(fmt.Sprintf("%s/resource/%s", Config.Api, Config.ProducerProperties)),
-				},
-			},
+			Uris:  uris,
 		},
 	}
 }
