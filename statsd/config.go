@@ -49,6 +49,7 @@ type config struct {
 	Mem                float64
 	Executor           string
 	ProducerProperties string
+	BrokerList         string
 	Topic              string
 	Transform          string // none, avro, proto
 	SchemaRegistryUrl  string
@@ -59,7 +60,7 @@ func (c *config) CanStart() bool {
 	if c.Transform == TransformAvro && c.SchemaRegistryUrl == "" {
 		return false
 	}
-	return c.ProducerProperties != "" && c.Topic != ""
+	return (c.ProducerProperties != "" || c.BrokerList != "") && c.Topic != ""
 }
 
 func (c *config) Read(task *mesos.TaskInfo) {
@@ -83,11 +84,12 @@ cpus:                %.2f
 mem:                 %.2f
 executor:            %s
 producer properties: %s
+broker list:         %s
 topic:               %s
 transform:           %s
 log level:           %s
 `, c.Api, c.Master, c.FrameworkName, c.FrameworkRole, c.User, c.Cpus, c.Mem,
-		c.Executor, c.ProducerProperties, c.Topic, c.Transform, c.LogLevel)
+		c.Executor, c.ProducerProperties, c.BrokerList, c.Topic, c.Transform, c.LogLevel)
 }
 
 func InitLogging(level string) error {
