@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>statsd Mesos Framework by stealthly</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>statsd Mesos Framework</h1>
+        <p>Mesos Statsd Framework that sends its metrics to Apache Kafka</p>
+
+        <p class="view"><a href="https://github.com/stealthly/statsd-mesos-kafka">View the Project on GitHub <small>stealthly/statsd-mesos-kafka</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/stealthly/statsd-mesos-kafka/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/stealthly/statsd-mesos-kafka/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/stealthly/statsd-mesos-kafka">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="statsd-mesos-kafka-framework" class="anchor" href="#statsd-mesos-kafka-framework" aria-hidden="true"><span class="octicon octicon-link"></span></a>Statsd Mesos Kafka Framework</h1>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Install go 1.4 (or higher) <a href="http://golang.org/doc/install">http://golang.org/doc/install</a></p>
+
+<p>Install godep <a href="https://github.com/tools/godep">https://github.com/tools/godep</a></p>
+
+<p>Clone and build the project</p>
+
+<pre><code># git clone git@github.com:stealthly/statsd-mesos-kafka.git
+# cd statsd-mesos-kafka
+# godep restore
+# go build .
+# go build cli.go
+</code></pre>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Statsd framework ships with command-line utility to manage schedulers and executors:</p>
+
+<pre><code># ./cli -help
+Usage:
+    help: show this message
+    scheduler: configure and start scheduler
+    start: start statsd server
+    stop: stop statsd server
+    update: update configuration
+    status: get current status of cluster
+More help you can get from ./cli &lt;command&gt; -h
+</code></pre>
+
+<h2>
+<a id="scheduler-configuration" class="anchor" href="#scheduler-configuration" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scheduler Configuration</h2>
+
+<p>The scheduler is configured through the command line.</p>
+
+<pre><code># ./cli scheduler &lt;options&gt;
+</code></pre>
+
+<p>Following options are available:</p>
+
+<pre><code>-master="": Mesos Master addresses.
+-api="": Binding host:port for http/artifact server. Optional if SM_API env is set.
+-user="": Mesos user. Defaults to current system user.
+-log.level="info": Log level. trace|debug|info|warn|error|critical. Defaults to info.
+-framework.name="statsd-kafka": Framework name.
+-framework.role="*": Framework role.
+</code></pre>
+
+<h2>
+<a id="starting-and-stopping-a-server" class="anchor" href="#starting-and-stopping-a-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Starting and Stopping a Server</h2>
+
+<pre><code># ./cli start|stop &lt;options&gt;
+</code></pre>
+
+<p>Options available:</p>
+
+<pre><code>-api="": Binding host:port for http/artifact server. Optional if SM_API env is set.
+</code></pre>
+
+<h2>
+<a id="updating-server-preferences" class="anchor" href="#updating-server-preferences" aria-hidden="true"><span class="octicon octicon-link"></span></a>Updating Server Preferences</h2>
+
+<pre><code># ./cli update &lt;options&gt;
+</code></pre>
+
+<p>Following options are available:</p>
+
+<pre><code>-api="": Binding host:port for http/artifact server. Optional if SM_API env is set.
+-producer.properties="": Producer.properties file name.
+-topic="": Topic to produce data to.
+-transform="": Transofmation to apply to each metric. none|avro|proto
+-schema.registry.url="": Avro Schema Registry url for transform=avro
+</code></pre>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/stealthly">stealthly</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
