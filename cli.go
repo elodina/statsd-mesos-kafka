@@ -97,6 +97,7 @@ func handleScheduler() error {
 	flag.StringVar(&logLevel, "log.level", statsd.Config.LogLevel, "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
 	flag.StringVar(&statsd.Config.FrameworkName, "framework.name", statsd.Config.FrameworkName, "Framework name.")
 	flag.StringVar(&statsd.Config.FrameworkRole, "framework.role", statsd.Config.FrameworkRole, "Framework role.")
+	flag.StringVar(&statsd.Config.Namespace, "namespace", statsd.Config.Namespace, "Namespace.")
 
 	flag.Parse()
 
