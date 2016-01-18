@@ -44,6 +44,9 @@ func transformAvro(message string, host string) interface{} {
 	logLine.Line = message
 	logLine.Logtypeid = 0
 	logLine.Source = host
+	logLine.Tag = map[string]string{
+		"namespace": Config.Namespace,
+	}
 	timing := &avro.Timing{Value: time.Now().UnixNano(), EventName: "received"}
 	logLine.Timings = []*avro.Timing{timing}
 
@@ -57,6 +60,8 @@ func transformProto(message string, host string) interface{} {
 	logLine.Line = proto.String(message)
 	logLine.Logtypeid = proto.Int64(0)
 	logLine.Source = proto.String(host)
+	tag := &pb.LogLine_Tag{Key: proto.String("namespace"), Value: proto.String(Config.Namespace)}
+	logLine.Tag = []*pb.LogLine_Tag{tag}
 	timing := &pb.LogLine_Timing{Value: proto.Int64(time.Now().UnixNano()), EventName: proto.String("received")}
 	logLine.Timings = []*pb.LogLine_Timing{timing}
 
