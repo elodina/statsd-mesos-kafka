@@ -1,34 +1,33 @@
 {
-	"ImportPath": "github.com/stealthly/statsd-mesos-kafka",
+	"ImportPath": "github.com/elodina/statsd-mesos-kafka",
 	"GoVersion": "go1.5.1",
 	"Packages": [
-		"."
+		"./..."
 	],
 	"Deps": [
-		{
-			"ImportPath": "github.com/Shopify/sarama",
-			"Comment": "v1.4.2-17-g094e483",
-			"Rev": "094e483251042a52ce92f76dbcf140ad2bd7cffb"
-		},
 		{
 			"ImportPath": "github.com/cihub/seelog",
 			"Comment": "go1.1-51-g92dc4b8",
 			"Rev": "92dc4b8b540607b8187cc2f95cac200211dcd745"
 		},
 		{
-			"ImportPath": "github.com/eapache/go-resiliency/breaker",
-			"Comment": "v1.0.0-1-ged0319b",
-			"Rev": "ed0319b32e66e3295db52695ba3ee493e823fbfe"
+			"ImportPath": "github.com/elodina/go-avro",
+			"Comment": "v0.1.0.0-42-g9e3567c",
+			"Rev": "9e3567cefe72605318d7dd537c7f3f4d31cfbbf2"
 		},
 		{
-			"ImportPath": "github.com/eapache/queue",
-			"Comment": "v1.0.2",
-			"Rev": "ded5959c0d4e360646dc9e9908cff48666781367"
+			"ImportPath": "github.com/elodina/go-kafka-avro",
+			"Rev": "6a786d9eb925838f3017637b91ad057a71d4e23d"
+		},
+		{
+			"ImportPath": "github.com/elodina/siesta",
+			"Comment": "v0.1.0.0-76-gca43fb0",
+			"Rev": "ca43fb086b34d9ed7bb7d6f6eb6dc1a5f72eab68"
 		},
 		{
 			"ImportPath": "github.com/gogo/protobuf/proto",
-			"Comment": "v0.1-55-g2093b57",
-			"Rev": "2093b57e5ca2ccbee4626814100bc1aada691b18"
+			"Comment": "v0.1-112-g5a3eea0",
+			"Rev": "5a3eea08ce6834526a1526d6562d2004562505b1"
 		},
 		{
 			"ImportPath": "github.com/golang/glog",
@@ -36,7 +35,7 @@
 		},
 		{
 			"ImportPath": "github.com/golang/protobuf/proto",
-			"Rev": "535a10468679b4cf155f6a7afdf53b554633fc09"
+			"Rev": "2402d76f3d41f928c7902a765dfc872356dd3aad"
 		},
 		{
 			"ImportPath": "github.com/golang/snappy",
@@ -48,87 +47,74 @@
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/auth",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/detector",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/executor",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/mesosproto",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/mesosutil",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/messenger",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/scheduler",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/mesos/mesos-go/upid",
-			"Comment": "mesos-0.24.0-1-g669fe5e",
-			"Rev": "669fe5e283d6c51e8c9e91fccf97823ebda49a43"
+			"Comment": "v0.0.2-27-g657252e",
+			"Rev": "657252ec6fc27975cd86da9f708acd6f4bb1f9ac"
 		},
 		{
 			"ImportPath": "github.com/pborman/uuid",
-			"Rev": "cccd189d45f7ac3368a0d127efb7f4d08ae0b655"
-		},
-		{
-			"ImportPath": "github.com/rcrowley/go-metrics",
-			"Rev": "dee209f2455f101a5e4e593dea94872d2c62d85d"
+			"Rev": "dee7705ef7b324f27ceb85a121c61f2c2e8ce988"
 		},
 		{
 			"ImportPath": "github.com/samuel/go-zookeeper/zk",
-			"Rev": "177002e16a0061912f02377e2dd8951a8b3551bc"
-		},
-		{
-			"ImportPath": "github.com/stealthly/go-avro",
-			"Rev": "c03139a9864e594a44e570f538d2331f42561347"
-		},
-		{
-			"ImportPath": "github.com/stealthly/go_kafka_client",
-			"Comment": "v0.3.5.2-9-g28fba2b",
-			"Rev": "28fba2b2c7443acbdc044de5b013285c9aff2074"
-		},
-		{
-			"ImportPath": "github.com/stealthly/siesta",
-			"Comment": "v0.1.0.0-64-g17fcb3c",
-			"Rev": "17fcb3cd1a01187b18620211abbd3ad52230fce9"
+			"Rev": "218e9c81c0dd8b3b18172b2bbfad92cc7d6db55f"
 		},
 		{
 			"ImportPath": "github.com/stretchr/objx",
-			"Rev": "cbeaeb16a013161a98496fad62933b1d21786672"
+			"Rev": "1a9d0bb9f541897e62256577b352fdbc1fb4fd94"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
-			"Comment": "v1.0-42-gb8dc1ce",
-			"Rev": "b8dc1cecf15bdaf1988d9e87aa7cd98d899a06d6"
+			"Comment": "v1.0",
+			"Rev": "232e8563676cd15c3a36ba5e675ad4312ac4cb11"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/mock",
-			"Comment": "v1.0-42-gb8dc1ce",
-			"Rev": "b8dc1cecf15bdaf1988d9e87aa7cd98d899a06d6"
+			"Comment": "v1.0",
+			"Rev": "232e8563676cd15c3a36ba5e675ad4312ac4cb11"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "db8e4de5b2d6653f66aea53094624468caad15d2"
+			"Rev": "961116aeebe66bfb58bb4d51818c70d256acbbb8"
+		},
+		{
+			"ImportPath": "gopkg.in/cihub/seelog.v2",
+			"Comment": "go1.1",
+			"Rev": "791566c9a7e3d7342f2fc8bc017e1032c8df0e8f"
 		}
 	]
 }
