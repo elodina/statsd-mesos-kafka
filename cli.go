@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/stealthly/statsd-mesos-kafka/statsd"
+	"github.com/elodina/statsd-mesos-kafka/statsd"
 	"strconv"
 )
 

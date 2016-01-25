@@ -10,7 +10,7 @@ Install godep https://github.com/tools/godep
 
 Clone and build the project
 
-    # git clone git@github.com:stealthly/statsd-mesos-kafka.git
+    # git clone git@github.com:elodina/statsd-mesos-kafka.git
     # cd statsd-mesos-kafka
     # godep restore
     # go build .

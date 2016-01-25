@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/stealthly/siesta"
+	"github.com/elodina/siesta"
 )
 
 type StatsDServer struct {

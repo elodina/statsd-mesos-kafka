@@ -23,7 +23,7 @@ import (
 	"os"
 
 	"github.com/mesos/mesos-go/executor"
-	"github.com/stealthly/statsd-mesos-kafka/statsd"
+	"github.com/elodina/statsd-mesos-kafka/statsd"
 )
 
 var logLevel = flag.String("log.level", "info", "Log level. trace|debug|info|warn|error|critical. Defaults to info.")

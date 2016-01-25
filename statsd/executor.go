@@ -22,8 +22,8 @@ import (
 	"github.com/jimlawless/cfg"
 	"github.com/mesos/mesos-go/executor"
 	mesos "github.com/mesos/mesos-go/mesosproto"
-	"github.com/stealthly/go_kafka_client"
-	"github.com/stealthly/siesta"
+	"github.com/elodina/go-kafka-avro"
+	"github.com/elodina/siesta"
 )
 
 type Executor struct {
@@ -148,7 +148,7 @@ func (e *Executor) serializer(transform string) func(interface{}) ([]byte, error
 	case TransformNone:
 		return siesta.StringSerializer
 	case TransformAvro:
-		return go_kafka_client.NewKafkaAvroEncoder(Config.SchemaRegistryUrl).Encode
+		return avro.NewKafkaAvroEncoder(Config.SchemaRegistryUrl).Encode
 	case TransformProto:
 		return siesta.ByteSerializer
 	}
