@@ -40,7 +40,6 @@ var executorMask = regexp.MustCompile("executor.*")
 
 type config struct {
 	Api                string
-	Listen             string
 	Master             string
 	FrameworkName      string
 	FrameworkRole      string
