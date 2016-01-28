@@ -18,9 +18,9 @@ package statsd
 import (
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/elodina/statsd-mesos-kafka/statsd/avro"
 	pb "github.com/elodina/statsd-mesos-kafka/statsd/proto"
+	"github.com/gogo/protobuf/proto"
 )
 
 const (

@@ -19,11 +19,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/elodina/go-kafka-avro"
+	"github.com/elodina/siesta"
 	"github.com/jimlawless/cfg"
 	"github.com/mesos/mesos-go/executor"
 	mesos "github.com/mesos/mesos-go/mesosproto"
-	"github.com/elodina/go-kafka-avro"
-	"github.com/elodina/siesta"
 )
 
 type Executor struct {
