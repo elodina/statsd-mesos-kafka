@@ -21,14 +21,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/elodina/siesta"
+	"github.com/elodina/siesta-producer"
 )
 
 type StatsDServer struct {
 	addr       string
 	connection *net.UDPConn
 	incoming   chan string
-	producer   *siesta.KafkaProducer
+	producer   *producer.KafkaProducer
 	transform  func(string, string) interface{}
 	host       string
 
@@ -37,7 +37,7 @@ type StatsDServer struct {
 	closeLock sync.Mutex
 }
 
-func NewStatsDServer(addr string, producer *siesta.KafkaProducer, transform func(string, string) interface{}, host string) *StatsDServer {
+func NewStatsDServer(addr string, producer *producer.KafkaProducer, transform func(string, string) interface{}, host string) *StatsDServer {
 	return &StatsDServer{
 		addr:      addr,
 		producer:  producer,
@@ -111,6 +111,6 @@ func (s *StatsDServer) startProducer() {
 	}()
 
 	for message := range s.incoming {
-		s.producer.Send(&siesta.ProducerRecord{Topic: Config.Topic, Value: s.transform(message, s.host)})
+		s.producer.Send(&producer.ProducerRecord{Topic: Config.Topic, Value: s.transform(message, s.host)})
 	}
 }

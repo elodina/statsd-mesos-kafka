@@ -21,6 +21,7 @@ import (
 
 	"github.com/elodina/go-kafka-avro"
 	"github.com/elodina/siesta"
+	"github.com/elodina/siesta-producer"
 	"github.com/jimlawless/cfg"
 	"github.com/mesos/mesos-go/executor"
 	mesos "github.com/mesos/mesos-go/mesosproto"
@@ -108,9 +109,9 @@ func (e *Executor) Error(driver executor.ExecutorDriver, message string) {
 	Logger.Errorf("[Error] %s", message)
 }
 
-func (e *Executor) newProducer(valueSerializer func(interface{}) ([]byte, error)) (*siesta.KafkaProducer, error) {
+func (e *Executor) newProducer(valueSerializer func(interface{}) ([]byte, error)) (*producer.KafkaProducer, error) {
 	if Config.ProducerProperties != "" {
-		producerConfig, err := siesta.ProducerConfigFromFile(Config.ProducerProperties)
+		producerConfig, err := producer.ProducerConfigFromFile(Config.ProducerProperties)
 		if err != nil {
 			return nil, err
 		}
@@ -128,9 +129,9 @@ func (e *Executor) newProducer(valueSerializer func(interface{}) ([]byte, error)
 			return nil, err
 		}
 
-		return siesta.NewKafkaProducer(producerConfig, siesta.ByteSerializer, valueSerializer, connector), nil
+		return producer.NewKafkaProducer(producerConfig, producer.ByteSerializer, valueSerializer, connector), nil
 	} else {
-		producerConfig := siesta.NewProducerConfig()
+		producerConfig := producer.NewProducerConfig()
 		connectorConfig := siesta.NewConnectorConfig()
 		connectorConfig.BrokerList = strings.Split(Config.BrokerList, ",")
 
@@ -139,18 +140,18 @@ func (e *Executor) newProducer(valueSerializer func(interface{}) ([]byte, error)
 			return nil, err
 		}
 
-		return siesta.NewKafkaProducer(producerConfig, siesta.ByteSerializer, valueSerializer, connector), nil
+		return producer.NewKafkaProducer(producerConfig, producer.ByteSerializer, valueSerializer, connector), nil
 	}
 }
 
 func (e *Executor) serializer(transform string) func(interface{}) ([]byte, error) {
 	switch transform {
 	case TransformNone:
-		return siesta.StringSerializer
+		return producer.StringSerializer
 	case TransformAvro:
 		return avro.NewKafkaAvroEncoder(Config.SchemaRegistryUrl).Encode
 	case TransformProto:
-		return siesta.ByteSerializer
+		return producer.ByteSerializer
 	}
 
 	// should not happen
