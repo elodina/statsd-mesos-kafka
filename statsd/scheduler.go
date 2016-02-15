@@ -24,6 +24,7 @@ import (
 	"strings"
 	"sync"
 
+	utils "github.com/elodina/go-mesos-utils"
 	"github.com/golang/protobuf/proto"
 	mesos "github.com/mesos/mesos-go/mesosproto"
 	util "github.com/mesos/mesos-go/mesosutil"
@@ -38,6 +39,7 @@ type Scheduler struct {
 	active     bool
 	activeLock sync.Mutex
 	driver     scheduler.SchedulerDriver
+	labels     string
 }
 
 func (s *Scheduler) Start() error {
@@ -56,12 +58,14 @@ func (s *Scheduler) Start() error {
 	go s.httpServer.Start()
 
 	s.cluster = NewCluster()
+	s.labels = os.Getenv("STACK_LABELS")
 
 	frameworkInfo := &mesos.FrameworkInfo{
 		User:       proto.String(Config.User),
 		Name:       proto.String(Config.FrameworkName),
 		Role:       proto.String(Config.FrameworkRole),
 		Checkpoint: proto.Bool(true),
+		Labels:     utils.StringToLabels(s.labels),
 	}
 
 	driverConfig := scheduler.DriverConfig{
@@ -226,7 +230,8 @@ func (s *Scheduler) launchTask(driver scheduler.SchedulerDriver, offer *mesos.Of
 			util.NewScalarResource("cpus", Config.Cpus),
 			util.NewScalarResource("mem", Config.Mem),
 		},
-		Data: data,
+		Data:   data,
+		Labels: utils.StringToLabels(s.labels),
 	}
 
 	s.cluster.Add(offer.GetHostname(), task)
