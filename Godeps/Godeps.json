@@ -1,9 +1,6 @@
 {
 	"ImportPath": "github.com/elodina/statsd-mesos-kafka",
 	"GoVersion": "go1.5.1",
-	"Packages": [
-		"./..."
-	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/cihub/seelog",
@@ -22,6 +19,10 @@
 		{
 			"ImportPath": "github.com/elodina/go-kafka-avro",
 			"Rev": "6a786d9eb925838f3017637b91ad057a71d4e23d"
+		},
+		{
+			"ImportPath": "github.com/elodina/go-mesos-utils",
+			"Rev": "d4aa76481426a2fbbabbaf437613a3c2553b4fcb"
 		},
 		{
 			"ImportPath": "github.com/elodina/siesta",

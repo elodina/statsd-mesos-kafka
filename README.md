@@ -4,11 +4,19 @@ Statsd Mesos Kafka Framework
 Installation
 ------------
 
-Install go 1.4 (or higher) http://golang.org/doc/install
+Install go 1.5 (or higher) http://golang.org/doc/install
 
 Install godep https://github.com/tools/godep
 
 Clone and build the project
+
+For go 1.5:
+
+```
+export GO15VENDOREXPERIMENT=1
+```
+
+In go 1.6 and higher, vendoring works by default.
 
     # git clone git@github.com:elodina/statsd-mesos-kafka.git
     # cd statsd-mesos-kafka
