@@ -86,12 +86,11 @@ func handleStatus() error {
 
 func handleScheduler() error {
 	var api string
-	var user string
 	var logLevel string
 
 	flag.StringVar(&statsd.Config.Master, "master", "", "Mesos Master addresses.")
 	flag.StringVar(&api, "api", "", "API host:port for advertizing.")
-	flag.StringVar(&user, "user", "", "Mesos user. Defaults to current system user")
+	flag.StringVar(&statsd.Config.User, "user", "", "Mesos user. Defaults to current system user")
 	flag.StringVar(&logLevel, "log.level", statsd.Config.LogLevel, "Log level. trace|debug|info|warn|error|critical. Defaults to info.")
 	flag.StringVar(&statsd.Config.FrameworkName, "framework.name", statsd.Config.FrameworkName, "Framework name.")
 	flag.StringVar(&statsd.Config.FrameworkRole, "framework.role", statsd.Config.FrameworkRole, "Framework role.")
